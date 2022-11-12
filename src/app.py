@@ -68,7 +68,7 @@ df_data_rep = pd.DataFrame(data=data)
 st.write('The following data is used to calculate reputation of 5 users: ')
 st.write(df_data_rep)
 st.write('We calculate reputation to be:')
-df_data_rep['reputation'] = 10*df_data_rep['recommendation'] + df_data_rep['number of posts']  + L/(1+((L-1)*e**(df_data_rep['number of followers'] - df_data_rep['number of following'] ))) 
+df_data_rep['reputation'] = 2*df_data_rep['recommendation'] + df_data_rep['number of posts']  + L/(1+((L-1)*e**(-df_data_rep['number of followers'] - df_data_rep['number of following'] -1) ) ) 
 st.write(df_data_rep)
 st.write(e**(df_data_rep['number of followers'] - df_data_rep['number of following'] ))
 
