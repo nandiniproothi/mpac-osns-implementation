@@ -46,7 +46,11 @@ st.write(calculate_pr_sl([0.66, 0.66], [0.33,0.33], 1, lambd=0.5))
 
 st.header('Example 2')
 st.write('Sharing data with target users')
+st.write('Strength of Interaction between Matthew and Jennifer: ')
+st.write('Strength of Interaction between Matthew and Nicholas: ')
 st.write('*Taking the same scenario as Example 1. We have now learned that Matthew and Nicholas are good friends, whereas Matthew and Jennifer don\'t have a great relationship.*')
+st.write('Matthew will favor protecting the privacy of Nicholas over the sharing loss incurred from not sharing the data item')
+st.write('Using conflict resolution, the result is: ')
 
 st.header('Example 3')
 st.write('Non-consensual sharing from a trusted user')
@@ -54,8 +58,11 @@ st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leaka
 st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leakage is high* (deny)')
 st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is low* (deny)')
 st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is high* (deny)')
+st.write('The above scenarios show how the strength of interaction between two users can affect whether the result is to permit or deny. Even though both Jennifer and Nicholas had lower values of identity leakage, sharing was still denied in the case of Nicholas because he has a better relationship with Matthew. This is meant to show the intention of favouring privacy when there is more trust between two users.')
 
 st.header('Example 4')
+
+st.write('Due to collusion-driven attacks where multiple bots can give each other a higher recommendation, the reputation of the bot ends up being a higher number. By using bot detection along with reputation, any users that are bots are automatically revealed ensuring that reputation is calculated only for qualified users.')
 
 Ru = [0.5, 0.3, 0.7, 0.4, 0.1]
 Np = [5, 2, 20, 40, 100]
