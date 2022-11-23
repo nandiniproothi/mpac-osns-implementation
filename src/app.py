@@ -46,18 +46,81 @@ st.write(calculate_pr_sl([0.66, 0.66], [0.33,0.33], 1, lambd=0.5))
 
 st.header('Example 2')
 st.write('Sharing data with target users')
-st.write('Strength of Interaction between Matthew and Jennifer: ')
-st.write('Strength of Interaction between Matthew and Nicholas: ')
+
+df = pd.read_csv('data/dataset_5.csv')
+df['sentiment'] = df['P(POSITIVE)']-df['P(NEGATIVE)']
+#normalising sentiment values b/w [0,1]
+df['normalized_sentiment'] = (df['sentiment'] - df['sentiment'].min())/(df['sentiment'].max() - df['sentiment'].min())
+wi = []
+#multiplying it by the weights for different interactions
+for index, row in df.iterrows():
+    if row['INTERACTION'] == 'INTERACTION_0000000001':
+      val = row['normalized_sentiment'] * 3
+    elif row['INTERACTION'] == 'INTERACTION_0000000002':
+      val = row['normalized_sentiment'] * 5
+    elif row['INTERACTION'] == 'INTERACTION_0000000003':
+      val = row['normalized_sentiment'] * 10
+    else:
+      val = row['normalized_sentiment']
+    wi.append(val)
+#adding column after multiplying by the weights   
+df['weighted_interaction'] = wi
+df.head()
+persons = ['PERSON_0000000000','PERSON_0000000001', 'PERSON_0000000002','PERSON_0000000003','PERSON_0000000004']
+#calculating soi for different interaction pairs, for eg, ab all of a's interactions with b 
+soi= {}
+for index, row in df.iterrows():
+  if row['PERSON_ID'] in persons and row['PERSON_ID'] != row['COUNTERPART_ID']:
+    person, counterpart = row['PERSON_ID'], row['COUNTERPART_ID']
+    ind = str(persons.index(person)) + str(persons.index(counterpart)) 
+    if soi.get(ind) != None:
+      soi[ind] += row['weighted_interaction']
+    else:
+      soi[ind] =0
+print(soi)
+
+def normalize(soi, target=1.0):
+   raw = sum(soi.values())
+   factor = target/raw
+   return {key:value*factor for key,value in soi.items()}
+
+normalized_soi = normalize(soi)
+print(normalized_soi)
+#Matthew is 2
+#Jennifer is 1
+#Nicholas is 3 
+lambd = 0.5
+
+# soi for Matthew and Jennifer is 01+10
+soi_jm = (normalized_soi['21'] + 0)/2 #'12' is 0
+soi_nm = (normalized_soi['23'] + 0)/2 #'32' is 0
+print(soi_jm, soi_nm)
+soi_threshold = (soi_jm + soi_nm)/2
+
+if soi_jm > soi_threshold:
+  lambd = lambd + (soi_jm - soi_threshold)
+else:
+  lambd = lambd - (soi_jm - soi_threshold)
+def return_soi(soi_vals):
+  return normalized_soi['21'], normalized_soi['23']
+
+return_soi(normalized_soi)
+return_pr_sl([0.66, 0.66], [0.5,0.33], 1, lambd=0.6 )
+
+
+
+st.write('Strength of Interaction between Matthew and Jennifer: ', soi_jm)
+st.write('Strength of Interaction between Matthew and Nicholas: ', soi_nm)
 st.write('*Taking the same scenario as Example 1. We have now learned that Matthew and Nicholas are good friends, whereas Matthew and Jennifer don\'t have a great relationship.*')
 st.write('Matthew will favor protecting the privacy of Nicholas over the sharing loss incurred from not sharing the data item')
-st.write('Using conflict resolution, the result is: ')
+st.write('Using conflict resolution, the result is: ', calculate_pr_sl([0.66, 0.66], [0.5,0.33], 1, lambd))
 
 st.header('Example 3')
 st.write('Non-consensual sharing from a trusted user')
-st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leakage is low* (permit)')
-st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leakage is high* (deny)')
-st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is low* (deny)')
-st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is high* (deny)')
+st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leakage is low*: 0.12845624048683145 so we PERMIT')
+st.write('*Matthew shares a picture of Jennifer where Jennifer\'s Identity Leakage is high*: 0.8318577404967322 so we DENY')
+st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is low*: 0.12845624048683145 so we DENY')
+st.write('*Matthew shares a picture of Nicholas where Nicholas\'s Identity Leakage is high*: 0.8318577404967322 so we DENY')
 st.write('The above scenarios show how the strength of interaction between two users can affect whether the result is to permit or deny. Even though both Jennifer and Nicholas had lower values of identity leakage, sharing was still denied in the case of Nicholas because he has a better relationship with Matthew. This is meant to show the intention of favouring privacy when there is more trust between two users.')
 
 st.header('Example 4')
